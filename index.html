@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اصلاح‌کننده زیرنویس فارسی برای CapCut</title>
+    <style>
+        body {
+            font-family: Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+            direction: rtl; /* Set base direction for the page */
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Include padding in width */
+            resize: vertical;
+            min-height: 150px;
+            font-size: 16px;
+            direction: rtl; /* Ensure textarea content is RTL */
+            text-align: right; /* Align text to the right */
+        }
+        input[type="file"] {
+            display: block;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-left: 10px; /* Add some margin for buttons */
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button#copyButton {
+            background-color: #28a745;
+        }
+        button#copyButton:hover {
+            background-color: #218838;
+        }
+        button#clearButton {
+            background-color: #dc3545;
+        }
+        button#clearButton:hover {
+            background-color: #c82333;
+        }
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-input-wrapper .btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+        }
+        .file-input-wrapper .btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>اصلاح‌کننده زیرنویس فارسی برای CapCut</h1>
+    <p>لطفاً فایل زیرنویس SRT خود را آپلود کنید تا متن فارسی آن برای نمایش صحیح در نرم‌افزارهایی مثل CapCut اصلاح شود. متن انگلیسی، شماره‌ها و زمان‌بندی‌ها بدون تغییر باقی خواهند ماند.</p>
+
+    <label for="srtFile">انتخاب فایل SRT:</label>
+    <div class="file-input-wrapper">
+        <button class="btn">انتخاب فایل</button>
+        <input type="file" id="srtFile" accept=".srt">
+    </div>
+    <span id="fileName">فایلی انتخاب نشده است.</span>
+
+    <label for="str">متن اصلی زیرنویس (قابل ویرایش):</label>
+    <textarea id="str" placeholder="متن زیرنویس اصلی اینجا نمایش داده می‌شود..."></textarea>
+
+    <div class="button-group">
+        <button onclick="processAndDownload()">اصلاح و دانلود</button>
+        <button id="copyButton" onclick="copy(event)">کپی متن در حافظه</button>
+        <button id="clearButton" onclick="remove()">پاک کردن</button>
+    </div>
+
+    <label for="converted">متن اصلاح شده:</label>
+    <textarea id="converted" placeholder="متن زیرنویس اصلاح شده اینجا نمایش داده می‌شود..."></textarea>
+</div>
+
+<script>
+    document.getElementById('srtFile').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            document.getElementById('fileName').textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('str').value = e.target.result;
+            };
+            reader.readAsText(file, 'utf-8'); // Ensure UTF-8 encoding
+        } else {
+            document.getElementById('fileName').textContent = 'فایلی انتخاب نشده است.';
+            document.getElementById('str').value = '';
+            document.getElementById('converted').value = '';
+        }
+    });
+
+    // --- Original Reshaping Logic from your provided code ---
+    var makesBeforeChasban = ['ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ک', 'ك', 'گ', 'ل', 'م', 'ن', 'ه', 'ی', 'ي', 'ئ'];
+    var makesAfterChasban = ['ا', 'آ', 'أ', 'إ', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'ژ', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ک', 'ك', 'گ', 'ل', 'م', 'ن', 'و', 'ه', 'ی', 'ي', 'ؤ', 'ئ'];
+    var reqularAlphabet = [
+        'ا', 'آ', 'أ', 'إ', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'ژ', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ک', 'ك', 'گ', 'ل', 'م', 'ن', 'و', 'ؤ', 'ه', 'ی', 'ي', 'ئ', 'ء',
+        // '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', // Removed English numbers from reqularAlphabet to avoid reshaping them here
+    ];
+    var arabicAlphabet = [
+        ['ﺍ', 'ﺍ', 'ﺎ', 'ﺎ'], // ا
+        ['ﺁ', 'ﺁ', 'ﺂ', 'ﺂ'], // آ
+        ['ﺃ', 'ﺃ', 'ﺄ', 'ﺄ'], // أ
+        ['ﺇ', 'ﺃ', 'ﺈ', 'ﺈ'], // إ
+        ['ﺏ', 'ﺑ', 'ﺐ', 'ﺒ'], // ب
+        ['ﭖ', 'ﭘ', 'ﭗ', 'ﭙ'], // پ
+        ['ﺕ', 'ﺗ', 'ﺖ', 'ﺘ'], // ت
+        ['ﺙ', 'ﺛ', 'ﺚ', 'ﺜ'], // ث
+        ['ﺝ', 'ﺟ', 'ﺞ', 'ﺠ'], // ج
+        ['ﭺ', 'ﭼ', 'ﭻ', 'ﭽ'], // چ
+        ['ﺡ', 'ﺣ', 'ﺢ', 'ﺤ'], // ح
+        ['ﺥ', 'ﺧ', 'ﺦ', 'ﺨ'], // خ
+        ['ﺩ', 'ﺩ', 'ﺪ', 'ﺪ'], // د
+        ['ﺫ', 'ﺫ', 'ﺬ', 'ﺬ'], // ذ
+        ['ﺭ', 'ﺭ', 'ﺮ', 'ﺮ'], // ر
+        ['ﺯ', 'ﺯ', 'ﺰ', 'ﺰ'], // ز
+        ['ﮊ', 'ژ', 'ﮋ', 'ﮋ'], // ژ
+        ['ﺱ', 'ﺳ', 'ﺲ', 'ﺴ'], // س
+        ['ﺵ', 'ﺷ', 'ﺶ', 'ﺸ'], // ش
+        ['ﺹ', 'ﺻ', 'ﺺ', 'ﺼ'], // ص
+        ['ﺽ', 'ﺿ', 'ﺾ', 'ﻀ'], // ض
+        ['ﻁ', 'ﻃ', 'ﻂ', 'ﻄ'], // ط
+        ['ﻅ', 'ﻇ', 'ﻆ', 'ﻈ'], // ظ
+        ['ﻉ', 'ﻋ', 'ﻊ', 'ﻌ'], // ع
+        ['ﻍ', 'ﻏ', 'ﻎ', 'ﻐ'], // غ
+        ['ﻑ', 'ﻓ', 'ﻒ', 'ﻔ'], // ف
+        ['ﻕ', 'ﻗ', 'ﻖ', 'ﻘ'], // ق
+        ['ک', 'ﻛ ', 'ﻚ', 'ﻜ'], // ک
+        ['ک', 'ﻛ ', 'ﻚ', 'ﻜ'], // ک (duplicate, likely for different Unicode variants)
+        ['ﮒ', 'ﮔ', 'ﮓ', 'ﮕ'], // گ
+        ['ﻝ', 'ﻟ', 'ﻞ', 'ﻠ'], // ل
+        ['ﻡ', 'ﻣ', 'ﻢ', 'ﻤ'], // م
+        ['ﻥ', 'ﻧ', 'ﻦ', 'ﻨ'], // ن
+        ['ﻭ', 'ﻭ', 'ﻮ', 'ﻮ'], // و
+        ['ﺅ', 'ﺅ', 'ﺆ', 'ﺆ'], // ؤ
+        ['ﻩ', 'ﻫ', 'ﻪ', 'ﻬ'], // ه
+        ['ى', 'ﯾ', 'ﯽ', 'ﯿ'], // ی (Arabic yeh)
+        ['ى', 'ﯾ', 'ﯽ', 'ﯿ'], // ی (Farsi yeh)
+        ['ﺉ', 'ﺋ', 'ﺊ', 'ﺌ'], // ئ
+        ['ﺀ', 'ﺀ', 'ﺀ', 'ﺀ'], // ء
+        ['١', '١', '١', '١'], // 1 -> ١ (Arabic-Indic digit)
+        ['٢', '٢', '٢', '٢'], // 2 -> ٢
+        ['٣', '٣', '٣', '٣'], // 3 -> ٣
+        ['٤', '٤', '٤', '٤'], // 4 -> ٤
+        ['٥', '٥', '٥', '٥'], // 5 -> ٥
+        ['٦', '٦', '٦', '٦'], // 6 -> ٦
+        ['٧', '٧', '٧', '٧'], // 7 -> ٧
+        ['٨', '٨', '٨', '٨'], // 8 -> ٨
+        ['٩', '٩', '٩', '٩'], // 9 -> ٩
+        ['٠', '٠', '٠', '٠'], // 0 -> ٠
+    ];
+    var numbers = ['١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '٠']; // Arabic-Indic digits
+
+    function convert() {
+        var strArray = document.getElementById('str').value.split("\n");
+        var convertedStrArray = [];
+
+        // Regex to check for SRT timestamp format: HH:MM:SS,ms --> HH:MM:SS,ms
+        const timestampRegex = /^\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}$/;
+        // Regex to check for a subtitle number (a line containing only digits)
+        const numberRegex = /^\d+$/;
+        // Regex to check for at least one Persian character
+        const persianCharRegex = /[\u0600-\u06FF\uFB50-\uFDCF\uFDF0-\uFDFF\uFE70-\uFEFF]/;
+        // Regex to check if a line contains only Latin characters, digits, and common punctuation
+        const onlyLatinOrNumbersRegex = /^[a-zA-Z0-9\s.,!?'"#$%&()*+-\/:;<=>@\[\\\]^_`{|}~]*$/;
+
+
+        for (let j = 0; j < strArray.length; j++) {
+            var currentLine = strArray[j];
+            var trimmedLine = currentLine.trim();
+
+            // 1. Check for SRT structural lines (timestamps, numbers, empty lines)
+            if (timestampRegex.test(trimmedLine) || numberRegex.test(trimmedLine) || trimmedLine === '') {
+                convertedStrArray.push(currentLine); // Push the original line
+                continue; // Skip to next line
+            }
+
+            // 2. Check if the line contains Persian characters
+            // If it contains Persian characters, apply the reshaping logic
+            if (persianCharRegex.test(trimmedLine)) {
+                var strInner = currentLine.split(" ");
+                var convertedStr = '';
+                for (var m = 0; m < strInner.length; m++) {
+                    var str = strInner[m];
+                    var atleastOne = false;
+                    var convertedWord = '';
+                    for (var i = 0; i < str.length; i++) {
+                        var beforeChasban, afterChasban;
+                        var currentCharPos = reqularAlphabet.indexOf(str[i]);
+                        if (currentCharPos >= 0) {
+                            atleastOne = true; // Mark as containing a Persian-relevant character
+                            if (i > 0) {
+                                if (makesBeforeChasban.includes(str[i - 1])) {
+                                    beforeChasban = true;
+                                } else {
+                                    beforeChasban = false;
+                                }
+                            } else {
+                                beforeChasban = false;
+                            }
+                            if (i < str.length - 1) {
+                                if (makesAfterChasban.includes(str[i + 1])) {
+                                    afterChasban = true;
+                                } else {
+                                    afterChasban = false;
+                                }
+                            } else {
+                                afterChasban = false;
+                            }
+                            if (!beforeChasban && !afterChasban) {
+                                convertedWord = arabicAlphabet[currentCharPos][0] + convertedWord;
+                            } else if (beforeChasban && !afterChasban) {
+                                convertedWord = arabicAlphabet[currentCharPos][2] + convertedWord;
+                            } else if (!beforeChasban && afterChasban) {
+                                convertedWord = arabicAlphabet[currentCharPos][1] + convertedWord;
+                            } else if (beforeChasban && afterChasban) {
+                                convertedWord = arabicAlphabet[currentCharPos][3] + convertedWord;
+                            }
+                        } else {
+                            // If character is not in reqularAlphabet (e.g., English char, punctuation)
+                            // and we are building a Persian word, prepend it.
+                            // If it's the start of a non-Persian segment, append it.
+                            if (atleastOne) {
+                                convertedWord = str[i] + convertedWord;
+                            } else {
+                                convertedWord += str[i];
+                            }
+                        }
+                    }
+                    convertedStr = convertedWord + ' ' + convertedStr;
+                }
+                convertedStrArray.push(convertedStr.trim());
+            } else {
+                // 3. If the line does NOT contain Persian characters, add it as is (English, pure numbers etc.)
+                convertedStrArray.push(currentLine);
+            }
+        }
+
+        // The original code's final join and number reversal logic.
+        // This part processes the *entire* converted string for Arabic-Indic number reversal.
+        // Given the above checks, this should only affect numbers that *might* have been
+        // processed by the reshaping logic if they were mixed with Persian characters.
+        // Pure English numbers in English-only lines will not reach this point via reshaping.
+        var finalValue = convertedStrArray.reduce(function (total, value) {
+            return (total + "\n" + value);
+        });
+
+        var numberWord = '';
+        var finalResultWithCorrectedNumbers = '';
+        for (var i = 0; i < finalValue.length; i++) {
+            if (numbers.indexOf(finalValue[i]) >= 0) { // Checks against Arabic-Indic numbers array
+                numberWord += finalValue[i];
+            } else {
+                if (numberWord !== '') {
+                    var tempWord = numberWord.split("").reverse().join("");
+                    finalResultWithCorrectedNumbers += tempWord;
+                    numberWord = '';
+                }
+                finalResultWithCorrectedNumbers += finalValue[i];
+            }
+        }
+        if (numberWord !== '') {
+            var tempWord = numberWord.split("").reverse().join("");
+            finalResultWithCorrectedNumbers += tempWord;
+        }
+
+        document.getElementById('converted').value = finalResultWithCorrectedNumbers.trim();
+        return finalResultWithCorrectedNumbers.trim(); // Return the converted text for download
+    }
+
+    // --- Helper functions for file operations ---
+    function processAndDownload() {
+        const convertedText = convert(); // Get the converted text from the modified convert() function
+        downloadSrt(convertedText, 'fixed_subtitle.srt');
+    }
+
+    function downloadSrt(content, filename) {
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url); // Clean up the URL object
+    }
+
+    function copy(e) {
+        var text = document.getElementById('converted').value;
+        navigator.clipboard.writeText(text).then(function() {
+            e.target.innerHTML = "کپی شد!"
+            setTimeout(function () {
+                e.target.innerHTML = "کپی متن در حافظه"
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+            alert('خطا در کپی متن. لطفاً به صورت دستی کپی کنید.');
+        });
+    }
+
+    function remove(){
+        document.getElementById('str').value = "";
+        document.getElementById('converted').value = "";
+        document.getElementById('fileName').textContent = 'فایلی انتخاب نشده است.';
+        document.getElementById('srtFile').value = ''; // Clear file input
+    }
+</script>
+</body>
+</html>
